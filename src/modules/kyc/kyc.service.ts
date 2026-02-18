@@ -1,34 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { KycEntity } from './entities/kyc.entity';
-
+import users from './kyc.json';
 @Injectable()
 export class KycService {
   private readonly index = 'kyc';
 
   constructor(private readonly elasticsearchService: ElasticsearchService) {}
 
-  search() {
+  searchKyc(search: string) {
     return this.elasticsearchService.search<KycEntity>({
       index: this.index,
       query: {
-        match: {
-          name: 'John Doe',
+        multi_match: {
+          query: search,
+          fields: [
+            'firstName',
+            'lastName',
+            'university',
+            'email',
+            'company.name',
+            'address.city',
+          ],
+          operator: 'or',
+          type: 'best_fields',
         },
       },
     });
   }
 
-  createIndex(i: string) {
-    return this.elasticsearchService.indices.create({
-      index: i,
-    });
-  }
+  bulkIndexUsers() {
+    const mockData = users.flatMap((user) => [
+      { index: { _index: 'kyc', _id: user.id } },
+      user,
+    ]);
 
-  createKyc(kyc: KycEntity) {
-    return this.elasticsearchService.index({
-      index: this.index,
-      document: kyc,
+    return this.elasticsearchService.bulk({
+      body: mockData,
     });
   }
 }
