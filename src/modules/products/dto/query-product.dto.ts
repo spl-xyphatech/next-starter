@@ -9,7 +9,7 @@ export class QueryProductDto {
   @IsNumber()
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
-  limit: number;
+  limit: number = 10;
 
   @IsNumber()
   @IsOptional()

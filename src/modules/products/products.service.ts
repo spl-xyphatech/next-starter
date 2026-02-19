@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 import { CreateProductDto } from './dto/create-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -22,21 +22,31 @@ export class ProductsService {
     if (query.search) {
       model.where('name', new RegExp(query.search, 'i'));
     }
-
     const total = await model.clone().countDocuments().exec();
 
     if (query.limit) model.limit(query.limit);
     if (query.offset) model.skip(query.offset);
-    const products = model.exec();
+    const products = await model.exec();
 
     return { products, total };
   }
 
-  findOne(id: string) {
-    return this.productModel.findOne({ _id: id }).exec();
+  async findOne(id: string) {
+    console.log('id :>> ', id);
+    if (!isValidObjectId(id))
+      throw new BadRequestException(`Invalid product ID format: ${id}`);
+
+    const product = await this.productModel.findById({ _id: id }).exec();
+
+    if (!product)
+      throw new BadRequestException(`Product with ID ${id} not found`);
+
+    return product;
   }
 
   update(id: string, updateProductDto: UpdateProductDto) {
+    if (!isValidObjectId(id))
+      throw new BadRequestException(`Invalid product ID format: ${id}`);
     return this.productModel
       .findByIdAndUpdate({ _id: id }, updateProductDto, {
         new: true,
@@ -45,6 +55,8 @@ export class ProductsService {
   }
 
   remove(id: string) {
+    if (!isValidObjectId(id))
+      throw new BadRequestException(`Invalid product ID format: ${id}`);
     return this.productModel.findByIdAndDelete({ _id: id }).exec();
   }
 }
