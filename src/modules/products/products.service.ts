@@ -32,7 +32,6 @@ export class ProductsService {
   }
 
   async findOne(id: string) {
-    console.log('id :>> ', id);
     if (!isValidObjectId(id))
       throw new BadRequestException(`Invalid product ID format: ${id}`);
 
