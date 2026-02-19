@@ -123,7 +123,6 @@ async function bootstrap() {
     .setTitle('Nest API')
     .setDescription('Core API engine for Nest apps')
     .setVersion('0.0.1')
-    .addTag('starter')
     // .addApiKey(
     //   {
     //     type: 'apiKey',

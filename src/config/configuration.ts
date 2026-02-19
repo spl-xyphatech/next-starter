@@ -12,4 +12,8 @@ export default () => ({
     },
     index: process.env.ELASTICSEARCH_INDEX || 'app_logs',
   },
+  axiom: {
+    dataset: process.env.AXIOM_DATASET,
+    token: process.env.AXIOM_TOKEN,
+  },
 });
