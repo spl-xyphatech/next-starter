@@ -30,7 +30,6 @@ import { ProductsModule } from './modules/products/products.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         pinoHttp: {
-          // level: configService.get<string>('log.level') || 'info',
           level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
           // Use `pino-pretty` for pretty-printing logs in development
           // Use axiomhq/pino for structured logging in production
@@ -41,10 +40,6 @@ import { ProductsModule } from './modules/products/products.module';
                   options: {
                     dataset: configService.get<string>('axiom.dataset'),
                     token: configService.get<string>('axiom.token'),
-                    // Optional: configure flush interval (default: 1000ms)
-                    flushInterval: 2000,
-                    // Optional: batch size (default: 100)
-                    batchSize: 50,
                   },
                 }
               : {
