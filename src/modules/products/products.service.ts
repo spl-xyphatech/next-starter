@@ -46,6 +46,7 @@ export class ProductsService {
   update(id: string, updateProductDto: UpdateProductDto) {
     if (!isValidObjectId(id))
       throw new BadRequestException(`Invalid product ID format: ${id}`);
+
     return this.productModel
       .findByIdAndUpdate({ _id: id }, updateProductDto, {
         new: true,
@@ -56,6 +57,7 @@ export class ProductsService {
   remove(id: string) {
     if (!isValidObjectId(id))
       throw new BadRequestException(`Invalid product ID format: ${id}`);
+
     return this.productModel.findByIdAndDelete({ _id: id }).exec();
   }
 }
