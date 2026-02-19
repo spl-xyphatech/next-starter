@@ -4,6 +4,9 @@ export default () => ({
     host: process.env.DATABASE_HOST,
     port: parseInt(process.env.DATABASE_PORT || '', 10) || 5432,
   },
+  mongodb: {
+    uri: process.env.MONGODB_URI,
+  },
   elasticsearch: {
     node: process.env.ELASTICSEARCH_NODE || 'http://localhost:9200',
     auth: {
