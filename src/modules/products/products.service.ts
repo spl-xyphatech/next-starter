@@ -17,6 +17,7 @@ export class ProductsService {
   }
 
   findAll(): Promise<Product[]> {
+    console.log('i do');
     return this.productModel.find().exec();
   }
 

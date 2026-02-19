@@ -25,40 +25,52 @@ import { ProductsModule } from './modules/products/products.module';
         uri: configService.get<string>('mongodb.uri'),
       }),
     }),
-    LoggerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        pinoHttp: {
-          level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-          // Use `pino-pretty` for pretty-printing logs in development
-          // Use axiomhq/pino for structured logging in production
-          transport:
-            process.env.NODE_ENV === 'production'
-              ? {
-                  target: '@axiomhq/pino',
-                  options: {
-                    dataset: configService.get<string>('axiom.dataset'),
-                    token: configService.get<string>('axiom.token'),
-                  },
-                }
-              : {
-                  target: 'pino-pretty',
-                  options: {
-                    colorize: true,
-                    translateTime: 'SYS:standard',
-                    ignore: 'pid,hostname',
-                  },
-                },
+    LoggerModule.forRoot({
+      pinoHttp: {
+        // level: 'info',
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: 'SYS:standard',
+            ignore: 'pid,hostname',
+          },
         },
-      }),
+      },
     }),
+    // LoggerModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: (configService: ConfigService) => ({
+    //     pinoHttp: {
+    //       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+    //       // Use `pino-pretty` for pretty-printing logs in development
+    //       // Use axiomhq/pino for structured logging in production
+    //       transport:
+    //         process.env.NODE_ENV === 'production'
+    //           ? {
+    //               target: '@axiomhq/pino',
+    //               options: {
+    //                 dataset: configService.get<string>('axiom.dataset'),
+    //                 token: configService.get<string>('axiom.token'),
+    //               },
+    //             }
+    //           : {
+    //               target: 'pino-pretty',
+    //               options: {
+    //                 colorize: true,
+    //                 translateTime: 'SYS:standard',
+    //                 ignore: 'pid,hostname',
+    //               },
+    //             },
+    //     },
+    //   }),
+    // }),
 
     HealthModule,
 
     // Resources
     KycModule,
-
     ProductsModule,
   ],
 })
