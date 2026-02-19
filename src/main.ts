@@ -128,14 +128,14 @@ async function bootstrap() {
     //   },
     //   'x-api-key',
     // )
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-      },
-      'jwt',
-    )
+    // .addBearerAuth(
+    //   {
+    //     type: 'http',
+    //     scheme: 'bearer',
+    //     bearerFormat: 'JWT',
+    //   },
+    //   'jwt',
+    // )
     .build();
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
