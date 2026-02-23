@@ -8,14 +8,14 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
-  // app.useLogger(app.get(Logger));
+  app.useLogger(app.get(Logger));
 
-  console.log('start');
   /**
    * Cross-origin resource sharing (CORS) is a mechanism that allows resources
    * to be requested from another domain.

@@ -8,10 +8,10 @@ import { KycService } from './kyc.service';
   imports: [
     ElasticsearchModule.registerAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         node: configService.get('ELASTICSEARCH_NODE'),
       }),
-      inject: [ConfigService],
     }),
   ],
   controllers: [KycController],

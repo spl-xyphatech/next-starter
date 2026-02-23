@@ -19,6 +19,7 @@ export class ProductsService {
 
   async findAll(query: QueryProductDto) {
     const model = this.productModel.find();
+
     if (query.search) {
       model.where('name', new RegExp(query.search, 'i'));
     }
