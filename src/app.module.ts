@@ -3,12 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerModule } from 'nestjs-pino';
 import configuration from './config/configuration';
-import { HealthModule } from './core/health/health.module';
 import { KycModule } from './modules/kyc/kyc.module';
 import { ProductsModule } from './modules/products/products.module';
 import { TestModule } from './modules/test/test.module';
-import { PrismaService } from './core/prisma/prisma.service';
-import { PrismaModule } from './core/prisma/prisma.module';
+import { HealthModule } from './shared/health/health.module';
+import { PrismaModule } from './shared/prisma/prisma.module';
+import { PrismaService } from './shared/prisma/prisma.service';
 
 @Module({
   imports: [
