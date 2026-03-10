@@ -1,10 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerModule } from 'nestjs-pino';
 import configuration from './config/configuration';
-import { KycModule } from './modules/kyc/kyc.module';
-import { ProductsModule } from './modules/products/products.module';
 import { TestModule } from './modules/test/test.module';
 import { HealthModule } from './shared/health/health.module';
 import { PrismaModule } from './shared/prisma/prisma.module';
@@ -49,19 +46,19 @@ import { PrismaService } from './shared/prisma/prisma.service';
         },
       }),
     }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('mongodb.uri'),
-      }),
-    }),
+    // MongooseModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: (configService: ConfigService) => ({
+    //     uri: configService.get<string>('mongodb.uri'),
+    //   }),
+    // }),
 
     HealthModule,
 
     // Resources
-    KycModule,
-    ProductsModule,
+    // KycModule,
+    // ProductsModule,
     TestModule,
     PrismaModule,
   ],
