@@ -26,7 +26,7 @@ export class TestService {
     return { data, total };
   }
 
-  async findOne(id: string) {
+  async findOne(id: number): Promise<Test> {
     const test = await this.prisma.test.findUnique({
       where: { id, deletedAt: null },
     });
@@ -34,7 +34,7 @@ export class TestService {
     return test;
   }
 
-  async update(id: string, updateTestDto: UpdateTestDto) {
+  async update(id: number, updateTestDto: UpdateTestDto) {
     await this.findOne(id);
     return this.prisma.test.update({
       where: { id, deletedAt: null },
@@ -42,7 +42,7 @@ export class TestService {
     });
   }
 
-  async remove(id: string) {
+  async remove(id: number): Promise<Test> {
     await this.findOne(id);
     return this.prisma.test.update({
       where: { id },

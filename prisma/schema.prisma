@@ -5,40 +5,38 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-  moduleFormat = "cjs" 
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-
 model User {
-  id                   String          @id @default(uuid()) @db.Uuid
-  name                 String          @db.VarChar(256)
-  email                String          @unique @db.VarChar(256)
-  phone                String?
-  password             String
-  avatar               String?
-  isFirstTime          Boolean         @default(true) @map("is_first_time")
-  createdBy            String?         @map("created_by")
-  updatedBy            String?         @map("updated_by")
-  createdAt            DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt            DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt            DateTime?       @map("deleted_at") @db.Timestamptz(6)
-  roleId               String          @map("role_id") @db.Uuid
-  role                 Role?           @relation(fields: [roleId], references: [id])
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(256)
+  email       String    @unique @db.VarChar(256)
+  phone       String?
+  password    String
+  avatar      String?
+  isFirstTime Boolean   @default(true) @map("is_first_time")
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+  roleId      Int       @map("role_id")
+  role        Role?     @relation(fields: [roleId], references: [id])
 
   @@index([name])
   @@index([email])
-  @@index([phone])
   @@map("users")
 }
 
 model Role {
-  id             String           @id @default(uuid()) @db.Uuid
+  id             Int              @id @default(autoincrement())
   code           String           @unique
   name           String
   description    String?
@@ -55,25 +53,23 @@ model Role {
 }
 
 model RolePermission {
-  id           String      @id @default(uuid()) @db.Uuid
-  roleId       String      @map("role_id") @db.Uuid
-  permissionId String      @map("permission_id") @db.Uuid
+  id           Int         @id @default(autoincrement())
+  roleId       Int         @map("role_id")
+  permissionId Int         @map("permission_id")
   description  String?
   createdBy    String?     @map("created_by")
   updatedBy    String?     @map("updated_by")
   createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
   deletedAt    DateTime?   @map("deleted_at") @db.Timestamptz(6)
-  permission   Permission? @relation(fields: [permissionId], references: [id])
   role         Role?       @relation(fields: [roleId], references: [id])
+  permission   Permission? @relation(fields: [permissionId], references: [id])
 
-  @@index([roleId])
-  @@index([permissionId])
   @@map("role-permission")
 }
 
 model Permission {
-  id             String           @id @default(uuid()) @db.Uuid
+  id             Int              @id @default(autoincrement())
   module         String
   action         String
   description    String?
@@ -85,38 +81,19 @@ model Permission {
   RolePermission RolePermission[]
 
   @@unique([module, action])
-  @@index([module])
-  @@index([action])
   @@map("permissions")
 }
 
-model Client {
-  id                 String               @id @default(uuid()) @db.Uuid
-  code           String           @unique
-  name           String
-  description    String?
-  createdBy          String               @map("created_by") @db.Uuid
-  updatedBy          String?              @map("updated_by") @db.Uuid
-  createdAt          DateTime             @default(now()) @map("created_at")
-  updatedAt          DateTime             @updatedAt @map("updated_at")
-  deletedAt          DateTime?            @map("deleted_at")
-
-  @@index([name])
-  @@map("clients")
-}
-
-
 model Test {
-  id             String           @id @default(uuid()) @db.Uuid
-  name           String
-  code           String           @unique
-  description    String?
-  createdBy      String?          @map("created_by")
-  updatedBy      String?          @map("updated_by")
-  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt      DateTime?        @map("deleted_at") @db.Timestamptz(6)
+  id          Int       @id @default(autoincrement())
+  name        String
+  code        String    @unique
+  description String?
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
 
-  @@index([name, code])
   @@map("test")
 }
