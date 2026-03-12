@@ -2,13 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import configuration from './config/configuration';
-import { TestModule } from './modules/test/test.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { MerchantsModule } from './modules/merchants/merchants.module';
+import { TagsModule } from './modules/tags/tags.module';
 import { HealthModule } from './shared/health/health.module';
 import { PrismaModule } from './shared/prisma/prisma.module';
 import { PrismaService } from './shared/prisma/prisma.service';
-import { TagsModule } from './modules/tags/tags.module';
-import { CategoriesModule } from './modules/categories/categories.module';
-import { MerchantsModule } from './modules/merchants/merchants.module';
 
 @Module({
   imports: [
@@ -49,21 +48,10 @@ import { MerchantsModule } from './modules/merchants/merchants.module';
         },
       }),
     }),
-    // MongooseModule.forRootAsync({
-    //   imports: [ConfigModule],
-    //   inject: [ConfigService],
-    //   useFactory: (configService: ConfigService) => ({
-    //     uri: configService.get<string>('mongodb.uri'),
-    //   }),
-    // }),
-
+    PrismaModule,
     HealthModule,
 
     // Resources
-    // KycModule,
-    // ProductsModule,
-    TestModule,
-    PrismaModule,
     TagsModule,
     CategoriesModule,
     MerchantsModule,

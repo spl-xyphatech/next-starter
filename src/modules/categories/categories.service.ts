@@ -35,11 +35,11 @@ export class CategoriesService {
     return category;
   }
 
-  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+  async update(id: number, data: UpdateCategoryDto) {
     await this.findOne(id);
     return this.prisma.category.update({
       where: { id, deletedAt: null },
-      data: updateCategoryDto,
+      data,
     });
   }
 

@@ -22,28 +22,34 @@ export class MerchantsService {
       take: query?.limit,
       skip: query?.offset,
       orderBy: query?.orderby,
+      omit: {
+        userId: true,
+      },
     });
 
     return { data, total };
   }
 
-  async findOne(id: number): Promise<Merchant> {
+  async findOne(id: number): Promise<Partial<Merchant>> {
     const merchant = await this.prisma.merchant.findUnique({
       where: { id, deletedAt: null },
+      omit: {
+        userId: true,
+      },
     });
     if (!merchant) throw new BadRequestException('Merchant not found');
     return merchant;
   }
 
-  async update(id: number, updateMerchantDto: UpdateMerchantDto) {
+  async update(id: number, data: UpdateMerchantDto) {
     await this.findOne(id);
     return this.prisma.merchant.update({
       where: { id, deletedAt: null },
-      data: updateMerchantDto,
+      data,
     });
   }
 
-  async remove(id: number): Promise<Merchant> {
+  async remove(id: number): Promise<Partial<Merchant>> {
     await this.findOne(id);
     return this.prisma.merchant.update({
       where: { id },
