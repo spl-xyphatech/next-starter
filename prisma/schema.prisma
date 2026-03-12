@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider     = "prisma-client"
   output       = "../generated/prisma"
@@ -13,6 +10,24 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Test {
+  id          Int       @id @default(autoincrement())
+  name        String
+  code        String    @unique
+  description String?
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  @@map("test")
+}
+
+// ============================================================
+// USER MANAGEMENT
+// ============================================================
 
 model User {
   id          Int       @id @default(autoincrement())
@@ -29,6 +44,9 @@ model User {
   deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
   roleId      Int       @map("role_id")
   role        Role?     @relation(fields: [roleId], references: [id])
+
+  customer Customer?
+  merchant Merchant?
 
   @@index([name])
   @@index([email])
@@ -65,7 +83,7 @@ model RolePermission {
   role         Role?       @relation(fields: [roleId], references: [id])
   permission   Permission? @relation(fields: [permissionId], references: [id])
 
-  @@map("role-permission")
+  @@map("role_permissions")
 }
 
 model Permission {
@@ -84,16 +102,285 @@ model Permission {
   @@map("permissions")
 }
 
-model Test {
+// ============================================================
+// MERCHANT
+// ============================================================
+
+model Merchant {
+  id             Int            @id @default(autoincrement())
+  userId         Int            @unique @map("user_id")
+  name           String         @db.VarChar(256)
+  description    String?        @db.Text
+  address        String?        @db.VarChar(512)
+  phone          String?        @db.VarChar(20)
+  status         MerchantStatus @default(PENDING)
+  rejectedReason String?        @map("rejected_reason") @db.Text
+  approvedAt     DateTime?      @map("approved_at") @db.Timestamptz(6)
+  approvedBy     String?        @map("approved_by")
+  createdBy      String?        @map("created_by")
+  updatedBy      String?        @map("updated_by")
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?      @map("deleted_at") @db.Timestamptz(6)
+
+  user               User               @relation(fields: [userId], references: [id])
+  images             MerchantImage[]
+  eventMerchants     EventMerchant[]
+  eventRequests      EventRequest[]
+  merchantCategories MerchantCategory[]
+  merchantTags       MerchantTag[]
+
+  @@index([name])
+  @@index([status])
+  @@map("merchants")
+}
+
+enum MerchantStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model MerchantImage {
+  id         Int       @id @default(autoincrement())
+  merchantId Int       @map("merchant_id")
+  url        String    @db.VarChar(512)
+  sortOrder  Int       @default(0) @map("sort_order")
+  createdBy  String?   @map("created_by")
+  updatedBy  String?   @map("updated_by")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt  DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  merchant Merchant @relation(fields: [merchantId], references: [id])
+
+  @@index([merchantId])
+  @@map("merchant_images")
+}
+
+// ============================================================
+// CUSTOMER
+// ============================================================
+
+model Customer {
+  id             Int       @id @default(autoincrement())
+  userId         Int       @unique @map("user_id")
+  socialProvider String?   @map("social_provider") @db.VarChar(50)
+  socialId       String?   @map("social_id") @db.VarChar(256)
+  createdBy      String?   @map("created_by")
+  updatedBy      String?   @map("updated_by")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  user            User             @relation(fields: [userId], references: [id])
+  customerCoupons CustomerCoupon[]
+
+  @@map("customers")
+}
+
+// ============================================================
+// CATEGORY (independent — e.g. Food Type, Environment)
+// ============================================================
+
+model Category {
   id          Int       @id @default(autoincrement())
-  name        String
-  code        String    @unique
-  description String?
+  code        String    @unique @db.VarChar(64)
+  name        String    @db.VarChar(128)
+  description String?   @db.Text
+  isActive    Boolean   @default(true) @map("is_active")
   createdBy   String?   @map("created_by")
   updatedBy   String?   @map("updated_by")
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
   deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
 
-  @@map("test")
+  merchantCategories MerchantCategory[]
+
+  @@index([name])
+  @@map("categories")
+}
+
+// ============================================================
+// TAG (independent — e.g. Smoking Area, Burger, Air Con)
+// ============================================================
+
+model Tag {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique @db.VarChar(64)
+  name        String    @db.VarChar(128)
+  description String?   @db.Text
+  isActive    Boolean   @default(true) @map("is_active")
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  merchantTags MerchantTag[]
+
+  @@index([code])
+  @@map("tags")
+}
+
+// Junction: merchant <-> category
+model MerchantCategory {
+  id         Int      @id @default(autoincrement())
+  merchantId Int      @map("merchant_id")
+  categoryId Int      @map("category_id")
+  createdBy  String?  @map("created_by")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  merchant Merchant @relation(fields: [merchantId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([merchantId, categoryId])
+  @@map("merchant_categories")
+}
+
+// Junction: merchant <-> tag
+model MerchantTag {
+  id         Int      @id @default(autoincrement())
+  merchantId Int      @map("merchant_id")
+  tagId      Int      @map("tag_id")
+  createdBy  String?  @map("created_by")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  merchant Merchant @relation(fields: [merchantId], references: [id])
+  tag      Tag      @relation(fields: [tagId], references: [id])
+
+  @@unique([merchantId, tagId])
+  @@map("merchant_tags")
+}
+
+// ============================================================
+// EVENT & COUPON
+// ============================================================
+
+model Event {
+  id           Int         @id @default(autoincrement())
+  title        String      @db.VarChar(256)
+  description  String?     @db.Text
+  totalQty     Int         @map("total_qty")
+  claimedQty   Int         @default(0) @map("claimed_qty")
+  perUserLimit Int         @default(1) @map("per_user_limit")
+  startAt      DateTime    @map("start_at") @db.Timestamptz(6)
+  expiredAt    DateTime    @map("expired_at") @db.Timestamptz(6)
+  status       EventStatus @default(ACTIVE)
+  isAdminEvent Boolean     @default(false) @map("is_admin_event")
+  createdBy    String?     @map("created_by")
+  updatedBy    String?     @map("updated_by")
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime?   @map("deleted_at") @db.Timestamptz(6)
+
+  eventMerchants EventMerchant[]
+  coupons        Coupon[]
+  eventRequest   EventRequest?
+
+  @@index([status])
+  @@index([expiredAt])
+  @@map("events")
+}
+
+enum EventStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
+// Junction: event <-> merchant
+model EventMerchant {
+  id         Int      @id @default(autoincrement())
+  eventId    Int      @map("event_id")
+  merchantId Int      @map("merchant_id")
+  qtyLimit   Int?     @map("qty_limit")
+  claimedQty Int      @default(0) @map("claimed_qty")
+  createdBy  String?  @map("created_by")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  event    Event    @relation(fields: [eventId], references: [id])
+  merchant Merchant @relation(fields: [merchantId], references: [id])
+
+  @@unique([eventId, merchantId])
+  @@map("event_merchants")
+}
+
+// Merchant requests a promotion event from admin
+model EventRequest {
+  id           Int                @id @default(autoincrement())
+  merchantId   Int                @map("merchant_id")
+  title        String             @db.VarChar(256)
+  description  String?            @db.Text
+  status       EventRequestStatus @default(PENDING)
+  eventId      Int?               @unique @map("event_id")
+  rejectedNote String?            @map("rejected_note") @db.Text
+  reviewedAt   DateTime?          @map("reviewed_at") @db.Timestamptz(6)
+  reviewedBy   String?            @map("reviewed_by")
+  createdBy    String?            @map("created_by")
+  updatedBy    String?            @map("updated_by")
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime?          @map("deleted_at") @db.Timestamptz(6)
+
+  merchant Merchant @relation(fields: [merchantId], references: [id])
+  event    Event?   @relation(fields: [eventId], references: [id])
+
+  @@index([merchantId])
+  @@index([status])
+  @@map("event_requests")
+}
+
+enum EventRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Individual coupon instance per claim
+model Coupon {
+  id        Int          @id @default(autoincrement())
+  uuid      String       @unique @default(uuid())
+  eventId   Int          @map("event_id")
+  status    CouponStatus @default(AVAILABLE)
+  createdBy String?      @map("created_by")
+  updatedBy String?      @map("updated_by")
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  event          Event           @relation(fields: [eventId], references: [id])
+  customerCoupon CustomerCoupon?
+
+  @@index([eventId])
+  @@index([status])
+  @@map("coupons")
+}
+
+enum CouponStatus {
+  AVAILABLE
+  CLAIMED
+  REDEEMED
+  EXPIRED
+}
+
+// Customer claims a coupon
+model CustomerCoupon {
+  id         Int       @id @default(autoincrement())
+  customerId Int       @map("customer_id")
+  couponId   Int       @unique @map("coupon_id")
+  claimedAt  DateTime  @default(now()) @map("claimed_at") @db.Timestamptz(6)
+  redeemedAt DateTime? @map("redeemed_at") @db.Timestamptz(6)
+  redeemedBy Int?      @map("redeemed_by")
+  createdBy  String?   @map("created_by")
+  updatedBy  String?   @map("updated_by")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  coupon   Coupon   @relation(fields: [couponId], references: [id])
+
+  @@unique([customerId, couponId])
+  @@index([customerId])
+  @@map("customer_coupons")
 }

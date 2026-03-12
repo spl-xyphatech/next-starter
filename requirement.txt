@@ -1,0 +1,159 @@
+================================================================
+COUPON PLATFORM — REQUIREMENTS
+================================================================
+
+OVERVIEW
+--------
+A promotional coupon platform connecting Customers and Merchants.
+No pricing or payments involved. Coupons are purely promotional.
+3 roles: Admin (Web), Merchant (Mobile), Customer (Mobile).
+Tech: NestJS + Prisma + PostgreSQL | React Web | React Native
+
+
+================================================================
+ROLES & PLATFORMS
+================================================================
+
+Admin     → React Web
+Merchant  → React Native Mobile
+Customer  → React Native Mobile
+
+
+================================================================
+ADMIN
+================================================================
+
+- Login via email/password (pre-seeded accounts)
+- Approve or reject merchant registrations (with rejection reason)
+- Manage categories (create, edit, delete)
+- Create events (linked to one or multiple merchants, or platform-only)
+- Review and act on merchant event requests
+- View all merchants, events, and event requests
+
+
+================================================================
+MERCHANT
+================================================================
+
+Registration:
+- Register with: shop name, description, address, phone, category
+- Upload multiple shop/menu images
+- Account status starts as PENDING until admin approves
+- Can view own registration status (PENDING / APPROVED / REJECTED)
+
+After Approval:
+- Submit event requests to admin (title + description)
+- View own event list and event request statuses
+- Scan customer QR code to redeem coupons
+- View redemption history
+
+
+================================================================
+CUSTOMER
+================================================================
+
+- Register/login via email+password or social login
+- Browse merchants and events WITHOUT login
+- Must login to claim a coupon
+- Claim coupons (FIFO, subject to per-user limit per event)
+- View "My Coupons" list with statuses
+- Tap a coupon to show QR code (generated from coupon UUID)
+- View merchant profile (2 tabs: Photos | Events)
+
+
+================================================================
+EVENT
+================================================================
+
+- Fields: title, description, category, total qty, per-user claim
+  limit (default 1), start date, expiry date
+- Can link to one or multiple merchants
+- Admin can create platform-only events (no merchant required)
+- Statuses: ACTIVE | INACTIVE | EXPIRED
+
+
+================================================================
+COUPON
+================================================================
+
+- Each claim creates a unique coupon instance (UUID)
+- Claiming is FIFO — first come first served
+- One coupon can only be redeemed once
+- Statuses: CLAIMED | REDEEMED | EXPIRED
+- QR code generated on-device from coupon UUID
+
+
+================================================================
+DATA MODELS
+================================================================
+
+User            → base user (all roles)
+Role            → ADMIN, MERCHANT, CUSTOMER
+Permission      → RBAC (module + action)
+RolePermission  → role to permission mapping
+
+Customer        → extends User (social login info)
+Merchant        → extends User (shop info, status, category)
+MerchantImage   → multiple images per merchant
+
+Category        → name, description
+Tag             → name, description
+
+Event           → title, desc, qty, perUserLimit, expiry, status
+EventMerchant   → junction: event <-> merchant (many-to-many)
+EventRequest    → merchant's request to admin for an event
+
+Coupon          → uuid, eventId, status
+CustomerCoupon  → customerId, couponId, claimedAt, redeemedAt
+
+
+================================================================
+ENUMS
+================================================================
+
+MerchantStatus     : PENDING | APPROVED | REJECTED
+EventStatus        : ACTIVE | INACTIVE | EXPIRED
+EventRequestStatus : PENDING | APPROVED | REJECTED
+CouponStatus       : CLAIMED | REDEEMED | EXPIRED
+
+
+================================================================
+SCREENS
+================================================================
+
+Admin (Web):
+  - Login
+  - Merchant List + Detail (approve/reject)
+  - Event List + Create/Edit
+  - Event Request List + Detail
+  - Category List + Create/Edit
+
+Customer (Mobile):
+  - Login / Register
+  - Home (event feed — no login needed)
+  - Event Detail + Claim
+  - Merchant Profile (Photos | Events tabs)
+  - My Coupons
+  - Coupon QR Screen
+
+Merchant (Mobile):
+  - Register + Login
+  - Registration Status
+  - Event List + Event Detail
+  - QR Scanner + Redemption Result
+  - Redemption History
+  - Request Event + My Requests
+
+
+================================================================
+NOTES
+================================================================
+
+- Coupon claiming must be atomic (prevent race conditions)
+- QR generated client-side, no extra API call needed
+- Soft delete on all major entities (deletedAt)
+- All timestamps in UTC (Timestamptz)
+- Images stored in object storage (e.g. S3)
+- Admin verifies merchants manually outside the system
+
+================================================================
