@@ -27,18 +27,6 @@ REDEEMED
 EXPIRED
 }
 
-Table test {
-id uuid [pk]
-name varchar
-code varchar [unique]
-description text [note: 'nullable']
-created_by varchar [note: 'nullable']
-updated_by varchar [note: 'nullable']
-created_at timestamptz
-updated_at timestamptz
-deleted_at timestamptz [note: 'nullable']
-}
-
 Table users {
 id uuid [pk]
 name varchar(256)
