@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 enum MerchantStatusEnum {
   PENDING = 'PENDING',
@@ -9,11 +9,11 @@ enum MerchantStatusEnum {
 
 export class CreateMerchantDto {
   @ApiProperty({
-    example: 1,
+    example: 'user_123',
     description: 'The user ID associated with the merchant',
   })
-  @IsNumber()
-  userId: number;
+  @IsString()
+  userId: string;
 
   @ApiProperty({
     example: 'ABC Restaurant',

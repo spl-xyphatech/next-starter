@@ -1,0 +1,15 @@
+export enum Permission {
+  CREATE_USER = 'user:write',
+  READ_USER = 'user:read',
+  UPDATE_USER = 'user:write',
+  DELETE_USER = 'user:write',
+  CREATE_ROLE = 'role:write',
+  READ_ROLE = 'role:read',
+  UPDATE_ROLE = 'role:write',
+  DELETE_ROLE = 'role:write',
+  ROLE_PERMISSION = 'role:permission',
+  CREATE_PERMISSION = 'permission:write',
+  READ_PERMISSION = 'permission:read',
+  UPDATE_PERMISSION = 'permission:write',
+  DELETE_PERMISSION = 'permission:write',
+}

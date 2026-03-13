@@ -27,20 +27,20 @@ export class TagsService {
     return { data, total };
   }
 
-  findOne(id: number): Promise<Tag> {
+  findOne(id: string): Promise<Tag> {
     return this.prisma.tag.findUniqueOrThrow({
       where: { id, deletedAt: null },
     });
   }
 
-  async update(id: number, data: UpdateTagDto) {
+  async update(id: string, data: UpdateTagDto) {
     return this.prisma.tag.update({
       where: { id, deletedAt: null },
       data,
     });
   }
 
-  async remove(id: number): Promise<Tag> {
+  async remove(id: string): Promise<Tag> {
     return this.prisma.tag.update({
       where: { id },
       data: { deletedAt: new Date() },

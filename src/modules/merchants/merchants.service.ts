@@ -30,7 +30,7 @@ export class MerchantsService {
     return { data, total };
   }
 
-  async findOne(id: number): Promise<Partial<Merchant>> {
+  async findOne(id: string): Promise<Partial<Merchant>> {
     const merchant = await this.prisma.merchant.findUnique({
       where: { id, deletedAt: null },
       omit: {
@@ -41,7 +41,7 @@ export class MerchantsService {
     return merchant;
   }
 
-  async update(id: number, data: UpdateMerchantDto) {
+  async update(id: string, data: UpdateMerchantDto) {
     await this.findOne(id);
     return this.prisma.merchant.update({
       where: { id, deletedAt: null },
@@ -49,7 +49,7 @@ export class MerchantsService {
     });
   }
 
-  async remove(id: number): Promise<Partial<Merchant>> {
+  async remove(id: string): Promise<Partial<Merchant>> {
     await this.findOne(id);
     return this.prisma.merchant.update({
       where: { id },
